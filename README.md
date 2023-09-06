@@ -7,6 +7,7 @@ Features:
 
 - all components are async functions
 - JSX-like syntax called RSX parsed with [rstml](https://github.com/rs-tml/rstml)
+- contexts, to easily pass values down the components tree
 - inspired by [Maud](https://maud.lambda.xyz/) and [Leptos](https://leptos.dev/)
 
 
