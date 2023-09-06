@@ -1,0 +1,10 @@
+[workspace]
+resolver = "2"
+members = [
+    "rscx",
+    "rscx-macros",
+    "benches",
+]
+
+[workspace.package]
+version = "0.1.0"

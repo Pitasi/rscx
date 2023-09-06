@@ -1,0 +1,17 @@
+[package]
+name = "rscx-macros"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+proc-macro = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+convert_case = "0.6.0"
+proc-macro2 = "1.0.66"
+proc-macro2-diagnostics = "0.10.1"
+quote = "1.0.33"
+rstml = "0.11.2"
+syn = { version = "2.0.29", features = ["full"] }
