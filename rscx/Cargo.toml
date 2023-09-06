@@ -5,7 +5,7 @@ edition = "2021"
 authors = ["Antonio Pitasi"]
 license = "MIT"
 repository = "https://github.com/pitasi/rscx"
-description = "rscx is a HTML templating library for Rust based a JSX-like syntax."
+description = "rscx is a HTML templating library for Rust with a JSX-like syntax."
 readme = "../README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
