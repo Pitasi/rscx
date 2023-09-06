@@ -1,7 +1,12 @@
 [package]
 name = "rscx-macros"
-version = "0.1.0"
+version = { workspace = true }
 edition = "2021"
+authors = ["Antonio Pitasi"]
+license = "MIT"
+repository = "https://github.com/pitasi/rscx"
+description = "proc macros for the rscx crate"
+readme = "../README.md"
 
 [lib]
 proc-macro = true
