@@ -1,3 +1,5 @@
+![crates.io](https://img.shields.io/crates/v/rscx.svg)
+
 # RSCx - Rust Server Components
 
 RSCx is a server-side HTML rendering engine library with a neat developer
