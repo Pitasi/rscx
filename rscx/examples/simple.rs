@@ -10,10 +10,34 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 // simple function returning a String
 // it will call the Items() function
 async fn app() -> String {
+    let s = "ul { color: red; }";
     html! {
         <!DOCTYPE html>
+        <html>
+            <head>
+                <style>{s}</style>
+            </head>
+            <body>
+                <Section title="Hello".to_string()>
+                    <Items />
+                </Section>
+            </body>
+        </html>
+    }
+}
+
+#[props]
+pub struct SectionProps {
+    title: String,
+    children: String,
+}
+
+#[component]
+fn Section(props: SectionProps) -> String {
+    html! {
         <div>
-            <Items />
+            <h1>{ props.title }</h1>
+            { props.children }
         </div>
     }
 }

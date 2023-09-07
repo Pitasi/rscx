@@ -7,11 +7,13 @@ Features:
 
 - all components are async functions
 - JSX-like syntax called RSX parsed with [rstml](https://github.com/rs-tml/rstml)
-- contexts, to easily pass values down the components tree
+- contexts, to easily pass values down the components tree ([example](https://github.com/Pitasi/rscx/blob/main/rscx/examples/context.rs))
 - inspired by [Maud](https://maud.lambda.xyz/) and [Leptos](https://leptos.dev/)
 
 
-## Example
+## Usage
+
+All the examples can be found in [rscx/examples/](https://github.com/Pitasi/rscx/tree/main/rscx/examples).
 
 ```rs
 use rscx::{component, html, props, CollectFragment};
@@ -26,9 +28,35 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 // simple function returning a String
 // it will call the Items() function
 async fn app() -> String {
+    let s = "ul { color: red; }";
+    html! {
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <style>{s}</style>
+            </head>
+            <body>
+                <Section title="Hello".to_string()>
+                    <Items />
+                </Section>
+            </body>
+        </html>
+    }
+}
+
+#[props]
+// components can optionally accept a "props struct"
+pub struct SectionProps {
+    title: String,
+    children: String, // children also work!
+}
+
+#[component]
+fn Section(props: SectionProps) -> String {
     html! {
         <div>
-            <Items />
+            <h1>{ props.title }</h1>
+            { props.children }
         </div>
     }
 }
