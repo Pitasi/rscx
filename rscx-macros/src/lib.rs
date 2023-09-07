@@ -33,8 +33,7 @@ fn html_inner(tokens: TokenStream, ide_helper: bool) -> TokenStream {
     .collect();
     let config = ParserConfig::new()
         .recover_block(true)
-        .always_self_closed_elements(empty_elements.clone())
-        .raw_text_elements(["script", "style"].into_iter().collect());
+        .always_self_closed_elements(empty_elements.clone());
 
     let parser = Parser::new(config);
     let (nodes, errors) = parser.parse_recoverable(tokens).split_vec();
