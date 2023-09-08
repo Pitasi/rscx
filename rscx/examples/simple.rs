@@ -27,7 +27,7 @@ async fn app() -> String {
 }
 
 #[props]
-pub struct SectionProps {
+struct SectionProps {
     title: String,
     children: String,
 }

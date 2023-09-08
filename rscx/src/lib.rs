@@ -3,6 +3,8 @@ pub mod context;
 pub extern crate rscx_macros;
 pub use rscx_macros::*;
 
+pub extern crate typed_builder;
+
 pub trait CollectFragment<I>
 where
     I: Iterator,

@@ -13,4 +13,5 @@ readme = "../README.md"
 [dependencies]
 rscx-macros = { workspace = true }
 tokio = { version = "1.32.0", features = ["full"] }
+typed-builder = "0.16.0"
 

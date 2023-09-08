@@ -306,43 +306,9 @@ impl ToTokens for PropsStruct {
         let builder_name =
             syn::Ident::new(&format!("{}Builder", name), proc_macro2::Span::call_site());
 
-        let setters = item
-            .fields
-            .iter()
-            .filter(|field| field.ident.as_ref().unwrap() != "attributes")
-            .map(|field| {
-                let name = field.ident.as_ref().unwrap();
-                let ty = &field.ty;
-                quote! {
-                    pub fn #name(mut self, #name: #ty) -> Self {
-                        self.props.#name = #name;
-                        self
-                    }
-                }
-            });
-
         tokens.extend(quote! {
-            #[derive(Default)]
+            #[derive(rscx::typed_builder::TypedBuilder)]
             #item
-
-            impl #name {
-                pub fn builder() -> #builder_name {
-                    #builder_name::default()
-                }
-            }
-
-            #[derive(Default)]
-            pub struct #builder_name {
-                props: #name,
-            }
-
-            impl #builder_name {
-                #(#setters)*
-
-                pub fn build(self) -> #name {
-                    self.props
-                }
-            }
         });
 
         let has_attributes = item
@@ -412,11 +378,12 @@ impl ToTokens for ComponentFn {
 
         let body = &item.block;
         let output = &item.sig.output;
+        let vis = &item.vis;
 
         tokens.extend(quote! {
             #defs
             #[allow(non_snake_case)]
-            pub async fn #name(#args) #output {
+            #vis async fn #name(#args) #output {
                 #body
             }
         });

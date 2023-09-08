@@ -47,10 +47,9 @@ async fn app() -> String {
 }
 
 #[props]
-// components can optionally accept a "props struct"
-pub struct SectionProps {
+struct SectionProps {
     title: String,
-    children: String, // children also work!
+    children: String,
 }
 
 #[component]
