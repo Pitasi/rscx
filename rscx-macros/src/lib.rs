@@ -307,7 +307,8 @@ impl ToTokens for PropsStruct {
             syn::Ident::new(&format!("{}Builder", name), proc_macro2::Span::call_site());
 
         tokens.extend(quote! {
-            #[derive(rscx::typed_builder::TypedBuilder)]
+            #[derive(::rscx::typed_builder::TypedBuilder)]
+            #[builder(doc, crate_module_path=::rscx::typed_builder)]
             #item
         });
 
