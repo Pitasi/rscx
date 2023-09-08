@@ -18,7 +18,11 @@ async fn app() -> String {
                 <style>{s}</style>
             </head>
             <body>
-                <Section title="Hello".to_string()>
+                // call a component with no props
+                <Section />
+
+                // call a component with props and children
+                <Section title="Hello">
                     <Items />
                 </Section>
             </body>
@@ -27,12 +31,17 @@ async fn app() -> String {
 }
 
 #[props]
+/// mark a struct with #[props] to use it as props in a component.
+/// #[builder] can customize single props, marking them as option or setting a default value.
 struct SectionProps {
+    #[builder(setter(into), default = "Default Title".to_string())]
     title: String,
+    #[builder(default)]
     children: String,
 }
 
 #[component]
+/// mark functions with #[component] to use them as components inside html! macro
 fn Section(props: SectionProps) -> String {
     html! {
         <div>
@@ -42,7 +51,6 @@ fn Section(props: SectionProps) -> String {
     }
 }
 
-// mark functions with #[component] to use them as components inside html! macro
 #[component]
 async fn Items() -> String {
     let data = load_data_async().await;
@@ -58,7 +66,8 @@ async fn Items() -> String {
     }
 }
 
-// async functions can be easily used in the body of a component
+/// async functions can be easily used in the body of a component, as every component is an async
+/// function
 async fn load_data_async() -> Vec<String> {
     vec!["a".to_string(), "b".to_string(), "c".to_string()]
 }
