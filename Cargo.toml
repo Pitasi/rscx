@@ -7,8 +7,8 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.4"
+version = "0.1.5"
 
 [workspace.dependencies]
-rscx = { path = "./rscx", version = "0.1.4" }
-rscx-macros = { path = "./rscx-macros", version = "0.1.4" }
+rscx = { path = "./rscx", version = "0.1.5" }
+rscx-macros = { path = "./rscx-macros", version = "0.1.5" }
