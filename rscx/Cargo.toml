@@ -11,7 +11,9 @@ readme = "../README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+async-trait = "0.1.73"
 axum = { version = "0.6.20", features = ["macros"], optional = true }
+futures = "0.3.28"
 html-escape = "0.2.13"
 rscx-macros = { workspace = true }
 tokio = { version = "1.32.0", features = ["full"] }
