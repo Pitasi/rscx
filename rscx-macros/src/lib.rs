@@ -148,7 +148,11 @@ fn walk_nodes<'a>(empty_elements: &HashSet<&str>, nodes: &'a Vec<Node>) -> WalkN
                                 out.values.push(block.to_token_stream());
                             }
                             NodeAttribute::Attribute(attribute) => {
-                                out.static_format.push_str(&format!(" {}", attribute.key));
+                                let key = match attribute.key.to_string().as_str() {
+                                    "as_" => "as".to_string(),
+                                    _ => attribute.key.to_string(),
+                                };
+                                out.static_format.push_str(&format!(" {}", key));
                                 if let Some(value) = attribute.value() {
                                     out.static_format.push_str(r#"="{}""#);
                                     out.values.push(value.to_token_stream());
