@@ -145,7 +145,11 @@ fn walk_nodes<'a>(empty_elements: &HashSet<&str>, nodes: &'a Vec<Node>) -> WalkN
                                 // If the nodes parent is an attribute we prefix with whitespace
                                 out.static_format.push(' ');
                                 out.static_format.push_str("{}");
-                                out.values.push(block.to_token_stream());
+                                out.values.push(quote! {{
+                                   ::rscx::html_escape::encode_double_quoted_attribute(
+                                        (#block).as_str()
+                                    )
+                                }});
                             }
                             NodeAttribute::Attribute(attribute) => {
                                 let key = match attribute.key.to_string().as_str() {
@@ -155,7 +159,11 @@ fn walk_nodes<'a>(empty_elements: &HashSet<&str>, nodes: &'a Vec<Node>) -> WalkN
                                 out.static_format.push_str(&format!(" {}", key));
                                 if let Some(value) = attribute.value() {
                                     out.static_format.push_str(r#"="{}""#);
-                                    out.values.push(value.to_token_stream());
+                                    out.values.push(quote! {
+                                       ::rscx::html_escape::encode_unquoted_attribute(
+                                            &format!("{}", #value)
+                                        )
+                                    });
                                 }
                             }
                         }

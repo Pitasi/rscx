@@ -7,6 +7,8 @@ pub use rscx_macros::*;
 
 pub extern crate typed_builder;
 
+pub extern crate html_escape;
+
 pub trait CollectFragment<I>
 where
     I: Iterator,

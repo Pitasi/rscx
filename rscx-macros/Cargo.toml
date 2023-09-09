@@ -15,6 +15,7 @@ proc-macro = true
 
 [dependencies]
 convert_case = "0.6.0"
+html-escape = "0.2.13"
 proc-macro2 = "1.0.66"
 proc-macro2-diagnostics = "0.10.1"
 quote = "1.0.33"

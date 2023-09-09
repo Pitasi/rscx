@@ -12,6 +12,7 @@ readme = "../README.md"
 
 [dependencies]
 axum = { version = "0.6.20", features = ["macros"], optional = true }
+html-escape = "0.2.13"
 rscx-macros = { workspace = true }
 tokio = { version = "1.32.0", features = ["full"] }
 tokio-util = { version = "0.7.8", features = ["rt"], optional = true }
