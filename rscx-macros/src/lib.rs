@@ -132,10 +132,18 @@ fn walk_nodes<'a>(empty_elements: &HashSet<&str>, nodes: &'a Vec<Node>) -> WalkN
                 let name = element.name().to_string();
 
                 if !is_component_tag_name(&name) {
-                    out.static_format.push_str(&format!("<{}", name));
-                    out.collected_elements.push(&element.open_tag.name);
-                    if let Some(e) = &element.close_tag {
-                        out.collected_elements.push(&e.name)
+                    match element.name() {
+                        NodeName::Block(block) => {
+                            out.static_format.push_str("<{}");
+                            out.values.push(block.to_token_stream());
+                        }
+                        _ => {
+                            out.static_format.push_str(&format!("<{}", name));
+                            out.collected_elements.push(&element.open_tag.name);
+                            if let Some(e) = &element.close_tag {
+                                out.collected_elements.push(&e.name)
+                            }
+                        }
                     }
 
                     // attributes
@@ -187,7 +195,16 @@ fn walk_nodes<'a>(empty_elements: &HashSet<&str>, nodes: &'a Vec<Node>) -> WalkN
                     // children
                     let other_output = walk_nodes(empty_elements, &element.children);
                     out.extend(other_output);
-                    out.static_format.push_str(&format!("</{}>", name));
+
+                    match element.name() {
+                        NodeName::Block(block) => {
+                            out.static_format.push_str("</{}>");
+                            out.values.push(block.to_token_stream());
+                        }
+                        _ => {
+                            out.static_format.push_str(&format!("</{}>", name));
+                        }
+                    }
                 } else {
                     // custom elements
                     out.static_format.push_str("{}");
