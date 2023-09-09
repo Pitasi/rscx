@@ -20,21 +20,24 @@ pub fn html_ide(tokens: TokenStream) -> TokenStream {
     html_inner(tokens, true)
 }
 
-fn html_inner(tokens: TokenStream, ide_helper: bool) -> TokenStream {
+fn empty_elements() -> HashSet<&'static str> {
     // https://developer.mozilla.org/en-US/docs/Glossary/Empty_element
-    let empty_elements: HashSet<_> = [
+    [
         "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param",
         "source", "track", "wbr",
     ]
     .into_iter()
-    .collect();
+    .collect()
+}
+
+fn html_inner(tokens: TokenStream, ide_helper: bool) -> TokenStream {
     let config = ParserConfig::new()
         .recover_block(true)
-        .always_self_closed_elements(empty_elements.clone());
+        .always_self_closed_elements(empty_elements());
 
     let parser = Parser::new(config);
     let (nodes, errors) = parser.parse_recoverable(tokens).split_vec();
-    process_nodes(empty_elements, ide_helper, &nodes, errors).into()
+    process_nodes(empty_elements(), ide_helper, &nodes, errors).into()
 }
 
 fn process_nodes<'n>(
@@ -155,8 +158,7 @@ fn walk_nodes<'a>(empty_elements: &HashSet<&str>, nodes: &'a Vec<Node>) -> WalkN
                     }
                     // Ignore childs of special Empty elements
                     if empty_elements.contains(element.open_tag.name.to_string().as_str()) {
-                        out.static_format
-                            .push_str(&format!("/</{}>", element.open_tag.name));
+                        out.static_format.push_str(" />");
                         if !element.children.is_empty() {
                             let warning = proc_macro2_diagnostics::Diagnostic::spanned(
                                 element.open_tag.name.span(),
@@ -237,14 +239,7 @@ impl<'e> ToTokens for CustomElement<'_> {
 
         let children = &self.e.children;
         if !children.is_empty() {
-            // https://developer.mozilla.org/en-US/docs/Glossary/Empty_element
-            let empty_elements: HashSet<_> = [
-                "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta",
-                "param", "source", "track", "wbr",
-            ]
-            .into_iter()
-            .collect();
-            let c = process_nodes(empty_elements, false, children, vec![]);
+            let c = process_nodes(empty_elements(), false, children, vec![]);
             chain.push(quote! { .children(#c) });
         }
 
