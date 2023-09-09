@@ -251,14 +251,30 @@ fn walk_attribute(attribute: &KeyedAttribute) -> (String, Option<proc_macro2::To
                 html_escape::encode_unquoted_attribute(&value.value())
             ));
         }
+        Some(Expr::Lit(ExprLit {
+            lit: syn::Lit::Bool(value),
+            ..
+        })) => {
+            static_format.push_str(&format!(r#"="{}""#, value.value()));
+        }
+        Some(Expr::Lit(ExprLit {
+            lit: syn::Lit::Int(value),
+            ..
+        })) => {
+            static_format.push_str(&format!(r#"="{}""#, value.token()));
+        }
+        Some(Expr::Lit(ExprLit {
+            lit: syn::Lit::Float(value),
+            ..
+        })) => {
+            static_format.push_str(&format!(r#"="{}""#, value.token()));
+        }
         Some(value) => {
             static_format.push_str(r#"="{}""#);
             format_value = Some(
-                quote! {
-                   ::rscx::html_escape::encode_double_quoted_attribute(
-                        &format!("{}", #value)
-                    )
-                }
+                quote! {{
+                    (#value).escape_attribute()
+                }}
                 .into_token_stream(),
             );
         }
