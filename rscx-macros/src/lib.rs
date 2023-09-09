@@ -5,10 +5,10 @@ use proc_macro2::{Literal, TokenTree};
 use proc_macro2_diagnostics::Diagnostic;
 use quote::{quote, quote_spanned, ToTokens};
 use rstml::{
-    node::{Node, NodeAttribute, NodeElement, NodeName},
+    node::{KeyedAttribute, Node, NodeAttribute, NodeElement, NodeName},
     Parser, ParserConfig,
 };
-use syn::{parse::Parse, spanned::Spanned, ItemStruct};
+use syn::{parse::Parse, spanned::Spanned, Expr, ExprLit, ItemStruct};
 
 #[proc_macro]
 pub fn html(tokens: TokenStream) -> TokenStream {
@@ -160,18 +160,10 @@ fn walk_nodes<'a>(empty_elements: &HashSet<&str>, nodes: &'a Vec<Node>) -> WalkN
                                 }});
                             }
                             NodeAttribute::Attribute(attribute) => {
-                                let key = match attribute.key.to_string().as_str() {
-                                    "as_" => "as".to_string(),
-                                    _ => attribute.key.to_string(),
-                                };
-                                out.static_format.push_str(&format!(" {}", key));
-                                if let Some(value) = attribute.value() {
-                                    out.static_format.push_str(r#"="{}""#);
-                                    out.values.push(quote! {
-                                       ::rscx::html_escape::encode_unquoted_attribute(
-                                            &format!("{}", #value)
-                                        )
-                                    });
+                                let (static_format, value) = walk_attribute(attribute);
+                                out.static_format.push_str(&static_format);
+                                if let Some(value) = value {
+                                    out.values.push(value);
                                 }
                             }
                         }
@@ -238,6 +230,42 @@ fn walk_nodes<'a>(empty_elements: &HashSet<&str>, nodes: &'a Vec<Node>) -> WalkN
     }
 
     out
+}
+
+fn walk_attribute(attribute: &KeyedAttribute) -> (String, Option<proc_macro2::TokenStream>) {
+    let mut static_format = String::new();
+    let mut format_value = None;
+    let key = match attribute.key.to_string().as_str() {
+        "as_" => "as".to_string(),
+        _ => attribute.key.to_string(),
+    };
+    static_format.push_str(&format!(" {}", key));
+
+    match attribute.value() {
+        Some(Expr::Lit(ExprLit {
+            lit: syn::Lit::Str(value),
+            ..
+        })) => {
+            static_format.push_str(&format!(
+                r#"="{}""#,
+                html_escape::encode_unquoted_attribute(&value.value())
+            ));
+        }
+        Some(value) => {
+            static_format.push_str(r#"="{}""#);
+            format_value = Some(
+                quote! {
+                   ::rscx::html_escape::encode_double_quoted_attribute(
+                        &format!("{}", #value)
+                    )
+                }
+                .into_token_stream(),
+            );
+        }
+        None => {}
+    }
+
+    (static_format, format_value)
 }
 
 fn is_component_tag_name(name: &str) -> bool {
