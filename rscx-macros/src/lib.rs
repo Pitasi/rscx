@@ -297,13 +297,9 @@ impl<'e> CustomElement<'e> {
 impl<'e> ToTokens for CustomElement<'_> {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         let name = self.e.name();
-        let props_struct_name = syn::Ident::new(
-            &format!("{}Props", name.to_string()),
-            proc_macro2::Span::call_site(),
-        );
 
         let mut chain = vec![quote! {
-            #props_struct_name::builder()
+            ::rscx::props::props_builder(&#name)
         }];
 
         let children = &self.e.children;
@@ -374,6 +370,13 @@ impl ToTokens for PropsStruct {
             #[derive(::rscx::typed_builder::TypedBuilder)]
             #[builder(doc, crate_module_path=::rscx::typed_builder)]
             #item
+
+            impl ::rscx::props::Props for #name {
+                type Builder = #builder_name;
+                fn builder() -> Self::Builder {
+                    #name::builder()
+                }
+            }
         });
 
         let has_attributes = item
