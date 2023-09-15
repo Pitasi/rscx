@@ -12,6 +12,9 @@ Features:
 - contexts, to easily pass values down the components tree ([example](https://github.com/Pitasi/rscx/blob/main/rscx/examples/context.rs))
 - inspired by [Maud](https://maud.lambda.xyz/) and [Leptos](https://leptos.dev/)
 
+*⚠️ Warning: not production-ready yet. It lacks important features such as HTML
+escaping!*
+
 
 ## Usage
 
@@ -96,6 +99,8 @@ async fn load_data_async() -> Vec<String> {
 
 ## Benchmarks
 
+RSCx is fast.
+
 *Disclaimer*: RSCx is for servers, as the name suggests. Therefore the following
 comparisons with Leptos are unfair. This library contains only a fraction of
 Leptos' features.
@@ -120,13 +125,15 @@ cargo criterion
 
 ```
 many_attrs/maud_many_attrs
-                        time:   [232.11 ns 238.52 ns 247.28 ns]
+                        time:   [205.89 ns 208.35 ns 211.53 ns]
+many_attrs/horrorshow_many_attrs
+                        time:   [37.221 µs 37.304 µs 37.401 µs]
 many_attrs/html_node_many_attrs
-                        time:   [65.056 µs 65.355 µs 65.686 µs]
+                        time:   [67.726 µs 67.830 µs 67.939 µs]
 many_attrs/leptos_many_attrs
-                        time:   [929.47 ns 936.84 ns 945.02 ns]
+                        time:   [923.31 ns 928.46 ns 935.04 ns]
 many_attrs/rscx_many_attrs
-                        time:   [231.12 ns 238.95 ns 249.42 ns]
+                        time:   [207.96 ns 212.82 ns 219.28 ns]
 ```
 
 RSCx and Maud pretty much are the same as their macros output is effectively a
@@ -137,11 +144,13 @@ static string with the result.
 
 ```
 small_fragment/maud_small_fragment
-                        time:   [104.95 ns 105.03 ns 105.15 ns]
+                        time:   [107.60 ns 107.71 ns 107.81 ns]
+small_fragment/horrorshow_small_fragment
+                        time:   [405.98 ns 406.08 ns 406.21 ns]
 small_fragment/leptos_small_fragment
-                        time:   [1.7115 µs 1.7139 µs 1.7169 µs]
+                        time:   [1.7641 µs 1.7652 µs 1.7662 µs]
 small_fragment/rscx_small_fragment
-                        time:   [99.514 ns 99.588 ns 99.673 ns]
+                        time:   [101.79 ns 101.87 ns 101.97 ns]
 ```
 
 RSCx offers a better DX than Maud, as the syntax is nicer and values such as i32
@@ -149,7 +158,19 @@ can be passed as props/attributes, while in Maud every attribute must be a
 static string.
 
 
-### Benchmark 3: async component rendering a list of 100 items
+### Benchmark 3: dynamic attributes (read for variable)
+
+```
+many_dyn_attrs/horrorshow_many_dyn_attrs
+                        time:   [50.445 µs 50.702 µs 50.977 µs]
+many_dyn_attrs/leptos_many_dyn_attrs
+                        time:   [100.13 µs 100.52 µs 101.00 µs]
+many_dyn_attrs/rscx_many_dyn_attrs
+                        time:   [33.953 µs 33.990 µs 34.037 µs]
+```
+
+
+### Benchmark 4: async component rendering a list of 100 items
 
 ```
 async_list/maud_async_list
