@@ -450,7 +450,10 @@ impl ToTokens for ComponentFn {
                             panic!("receiver arguments unsupported");
                         }
                         FnArg::Typed(mut t) => {
-                            t.attrs.push(parse_quote! { #[builder(setter(into))] });
+                            if t.attrs.is_empty() {
+                                t.attrs.push(parse_quote! { #[builder(setter(into))] });
+                            }
+
                             t
                         }
                     })
