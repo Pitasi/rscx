@@ -8,7 +8,8 @@ use rstml::{
     node::{KeyedAttribute, Node, NodeAttribute, NodeElement, NodeName},
     Parser, ParserConfig,
 };
-use syn::{parse::Parse, spanned::Spanned, Expr, ExprLit, ItemStruct};
+use syn::punctuated::Punctuated;
+use syn::{parse::Parse, parse_quote, spanned::Spanned, Expr, ExprLit, FnArg, ItemStruct, Token};
 
 #[proc_macro]
 pub fn html(tokens: TokenStream) -> TokenStream {
@@ -438,9 +439,45 @@ impl ToTokens for ComponentFn {
                 let props = item.sig.inputs.first().unwrap();
                 (quote! {}, props.to_token_stream())
             }
-            // TODO: generate #nameProps here
             _ => {
-                panic!("wrong props")
+                let field_defs = &item
+                    .sig
+                    .inputs
+                    .clone()
+                    .into_iter()
+                    .map(|i| match i {
+                        FnArg::Receiver(_) => {
+                            panic!("receiver arguments unsupported");
+                        }
+                        FnArg::Typed(mut t) => {
+                            t.attrs.push(parse_quote! { #[builder(setter(into))] });
+                            t
+                        }
+                    })
+                    .collect::<Punctuated<_, Token![,]>>();
+                let field_names = item
+                    .sig
+                    .inputs
+                    .iter()
+                    .map(|i| match i {
+                        FnArg::Receiver(_) => {
+                            panic!("receiver arguments unsupported");
+                        }
+                        FnArg::Typed(t) => &t.pat,
+                    })
+                    .collect::<Punctuated<_, Token![,]>>();
+                let props_name =
+                    syn::Ident::new(&format!("{}Props", name), proc_macro2::Span::call_site());
+
+                (
+                    quote! {
+                        #[rscx::props]
+                        pub struct #props_name {
+                            #field_defs
+                        }
+                    },
+                    quote! { #props_name { #field_names }: #props_name },
+                )
             }
         };
 
