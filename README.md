@@ -53,23 +53,17 @@ async fn app() -> String {
     }
 }
 
-#[props]
-/// mark a struct with #[props] to use it as props in a component.
-/// #[builder] can customize single props, marking them as option or setting a default value.
-struct SectionProps {
-    #[builder(setter(into), default = "Default Title".to_string())]
-    title: String,
-    #[builder(default)]
-    children: String,
-}
-
 #[component]
 /// mark functions with #[component] to use them as components inside html! macro
-fn Section(props: SectionProps) -> String {
+fn Section(
+    // you can use `builder` attributes to specify a default value (makes this prop optional)
+    #[builder(default = "Default title".into(), setter(into))] title: String,
+    #[builder(default)] children: String,
+) -> String {
     html! {
         <div>
-            <h1>{ props.title }</h1>
-            { props.children }
+            <h1>{ title }</h1>
+            { children }
         </div>
     }
 }
