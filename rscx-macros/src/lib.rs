@@ -20,8 +20,16 @@ pub fn html_ide(tokens: TokenStream) -> TokenStream {
     html_inner(tokens, true)
 }
 
-fn empty_elements() -> HashSet<&'static str> {
+fn is_empty_element(name: &str) -> bool {
     // https://developer.mozilla.org/en-US/docs/Glossary/Empty_element
+    match name {
+        "img" | "input" | "meta" | "link" | "hr" | "br" | "source" | "track" | "wbr" | "area"
+        | "base" | "col" | "embed" | "param" => true,
+        _ => false,
+    }
+}
+
+fn empty_elements_set() -> HashSet<&'static str> {
     [
         "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param",
         "source", "track", "wbr",
@@ -33,15 +41,14 @@ fn empty_elements() -> HashSet<&'static str> {
 fn html_inner(tokens: TokenStream, ide_helper: bool) -> TokenStream {
     let config = ParserConfig::new()
         .recover_block(true)
-        .always_self_closed_elements(empty_elements());
+        .always_self_closed_elements(empty_elements_set());
 
     let parser = Parser::new(config);
     let (nodes, errors) = parser.parse_recoverable(tokens).split_vec();
-    process_nodes(empty_elements(), ide_helper, &nodes, errors).into()
+    process_nodes(ide_helper, &nodes, errors).into()
 }
 
 fn process_nodes<'n>(
-    empty_elements: HashSet<&str>,
     ide_helper: bool,
     nodes: &'n Vec<Node>,
     errors: Vec<Diagnostic>,
@@ -51,7 +58,7 @@ fn process_nodes<'n>(
         values,
         collected_elements: elements,
         diagnostics,
-    } = walk_nodes(&empty_elements, &nodes);
+    } = walk_nodes(&nodes);
     let docs = if ide_helper {
         generate_tags_docs(elements)
     } else {
@@ -119,7 +126,7 @@ impl<'a> WalkNodesOutput<'a> {
     }
 }
 
-fn walk_nodes<'a>(empty_elements: &HashSet<&str>, nodes: &'a Vec<Node>) -> WalkNodesOutput<'a> {
+fn walk_nodes<'a>(nodes: &'a Vec<Node>) -> WalkNodesOutput<'a> {
     let mut out = WalkNodesOutput::default();
 
     for node in nodes {
@@ -165,7 +172,7 @@ fn walk_nodes<'a>(empty_elements: &HashSet<&str>, nodes: &'a Vec<Node>) -> WalkN
                         }
                     }
                     // Ignore childs of special Empty elements
-                    if empty_elements.contains(element.open_tag.name.to_string().as_str()) {
+                    if is_empty_element(element.open_tag.name.to_string().as_str()) {
                         out.static_format.push_str(" />");
                         if !element.children.is_empty() {
                             let warning = proc_macro2_diagnostics::Diagnostic::spanned(
@@ -181,7 +188,7 @@ fn walk_nodes<'a>(empty_elements: &HashSet<&str>, nodes: &'a Vec<Node>) -> WalkN
                     out.static_format.push('>');
 
                     // children
-                    let other_output = walk_nodes(empty_elements, &element.children);
+                    let other_output = walk_nodes(&element.children);
                     out.extend(other_output);
 
                     match element.name() {
@@ -211,7 +218,7 @@ fn walk_nodes<'a>(empty_elements: &HashSet<&str>, nodes: &'a Vec<Node>) -> WalkN
                 out.values.push(TokenTree::from(literal).into());
             }
             Node::Fragment(fragment) => {
-                let other_output = walk_nodes(empty_elements, &fragment.children);
+                let other_output = walk_nodes(&fragment.children);
                 out.extend(other_output)
             }
             Node::Comment(comment) => {
@@ -304,7 +311,7 @@ impl<'e> ToTokens for CustomElement<'_> {
 
         let children = &self.e.children;
         if !children.is_empty() {
-            let c = process_nodes(empty_elements(), false, children, vec![]);
+            let c = process_nodes(false, children, vec![]);
             chain.push(quote! { .children(#c) });
         }
 
