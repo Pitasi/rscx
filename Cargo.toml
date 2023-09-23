@@ -5,6 +5,9 @@ members = [
     "rscx-macros",
     "benches",
 ]
+exclude = [
+    "website",
+]
 
 [workspace.package]
 version = "0.1.9"

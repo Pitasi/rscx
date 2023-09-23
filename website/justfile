@@ -1,0 +1,12 @@
+dev:
+    static-web-server --port 8787 --root ./dist &
+    open http://localhost:8787
+    cargo watch -i dist/ -s "cargo run && just copy-bundle-css" 
+
+build-release: build-html-release copy-bundle-css
+
+build-html-release:
+    cargo run --release
+
+copy-bundle-css:
+    cp ./target/csm/bundle.css ./dist/bundle.css
