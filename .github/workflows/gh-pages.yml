@@ -33,12 +33,14 @@ jobs:
       - uses: actions-rust-lang/setup-rust-toolchain@v1
       - name: Generate HTML
         run: cargo run --release
+        working-directory: ./website
       - name: Copy bundle.css
         run: cp ./target/csm/bundle.css dist/
+        working-directory: ./website
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: dist/
+          path: ./website/dist/
 
   # Deployment job
   deploy:
