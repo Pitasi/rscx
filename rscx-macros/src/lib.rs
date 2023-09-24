@@ -75,7 +75,7 @@ fn process_nodes<'n>(
             #(#errors;)*
             // Make sure that "enum x{};" and "let _x = crate::element;"  can be used in this context
             #(#docs;)*
-            format!(#html_string, #(#values),*)
+            format!(#html_string, #(rscx::FormatWrapper::new(#values)),*)
         }
     }
 }
@@ -227,8 +227,10 @@ fn walk_nodes<'a>(nodes: &'a Vec<Node>) -> WalkNodesOutput<'a> {
                 out.values.push(comment.value.to_token_stream());
             }
             Node::Block(block) => {
+                let block = block.try_block().unwrap();
+                let stmts = &block.stmts;
                 out.static_format.push_str("{}");
-                out.values.push(block.to_token_stream());
+                out.values.push(quote!(#(#stmts)*));
             }
         }
     }
@@ -277,7 +279,8 @@ fn walk_attribute(attribute: &KeyedAttribute) -> (String, Option<proc_macro2::To
             static_format.push_str(r#"="{}""#);
             format_value = Some(
                 quote! {{
-                    (#value).escape_attribute()
+                    // (#value).escape_attribute()
+                    ::rscx::EscapeAttribute::escape_attribute(&#value)
                 }}
                 .into_token_stream(),
             );
