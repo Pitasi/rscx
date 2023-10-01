@@ -5,6 +5,8 @@ pub use attributes::*;
 #[cfg(feature = "axum")]
 pub mod axum;
 pub mod context;
+pub mod format_wrapper;
+pub mod render;
 
 pub extern crate rscx_macros;
 use std::future::Future;
@@ -14,6 +16,7 @@ pub use rscx_macros::*;
 pub extern crate typed_builder;
 
 pub extern crate html_escape;
+pub use format_wrapper::FormatWrapper;
 
 use async_trait::async_trait;
 use futures::future::join_all;

@@ -5,7 +5,7 @@ use std::{
 };
 
 use csm::csm;
-use rscx::{component, html, EscapeAttribute};
+use rscx::{component, html};
 use rscx_mdx::mdx::{Mdx, MdxComponentProps};
 
 #[tokio::main]

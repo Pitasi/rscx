@@ -1,7 +1,6 @@
 use std::collections::HashSet;
 
 use proc_macro::TokenStream;
-use proc_macro2::{Literal, TokenTree};
 use proc_macro2_diagnostics::Diagnostic;
 use quote::{quote, quote_spanned, ToTokens};
 use rstml::{
@@ -75,7 +74,7 @@ fn process_nodes<'n>(
             #(#errors;)*
             // Make sure that "enum x{};" and "let _x = crate::element;"  can be used in this context
             #(#docs;)*
-            format!(#html_string, #(#values),*)
+            format!(#html_string, #(rscx::FormatWrapper::new(#values)),*)
         }
     }
 }
@@ -212,11 +211,7 @@ fn walk_nodes<'a>(nodes: &'a Vec<Node>) -> WalkNodesOutput<'a> {
                 out.static_format.push_str(&text.value_string());
             }
             Node::RawText(text) => {
-                out.static_format.push_str("{}");
-                let tokens = text.to_string_best();
-                let literal = Literal::string(&tokens);
-
-                out.values.push(TokenTree::from(literal).into());
+                out.static_format.push_str(&text.to_string_best());
             }
             Node::Fragment(fragment) => {
                 let other_output = walk_nodes(&fragment.children);
@@ -227,8 +222,10 @@ fn walk_nodes<'a>(nodes: &'a Vec<Node>) -> WalkNodesOutput<'a> {
                 out.values.push(comment.value.to_token_stream());
             }
             Node::Block(block) => {
+                let block = block.try_block().unwrap();
+                let stmts = &block.stmts;
                 out.static_format.push_str("{}");
-                out.values.push(block.to_token_stream());
+                out.values.push(quote!(#(#stmts)*));
             }
         }
     }
@@ -277,7 +274,8 @@ fn walk_attribute(attribute: &KeyedAttribute) -> (String, Option<proc_macro2::To
             static_format.push_str(r#"="{}""#);
             format_value = Some(
                 quote! {{
-                    (#value).escape_attribute()
+                    // (#value).escape_attribute()
+                    ::rscx::EscapeAttribute::escape_attribute(&#value)
                 }}
                 .into_token_stream(),
             );
