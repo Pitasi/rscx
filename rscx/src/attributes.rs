@@ -6,6 +6,12 @@ pub trait EscapeAttribute {
     fn escape_attribute(&self) -> Cow<str>;
 }
 
+impl EscapeAttribute for &str {
+    fn escape_attribute(&self) -> Cow<str> {
+        encode_unquoted_attribute(self)
+    }
+}
+
 impl EscapeAttribute for str {
     fn escape_attribute(&self) -> Cow<str> {
         encode_unquoted_attribute(self)
