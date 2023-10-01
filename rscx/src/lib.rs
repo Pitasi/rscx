@@ -6,7 +6,7 @@ pub use attributes::*;
 pub mod axum;
 pub mod context;
 pub mod format_wrapper;
-pub mod renderable;
+pub mod render;
 
 pub extern crate rscx_macros;
 use std::future::Future;
