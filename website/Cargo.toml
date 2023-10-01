@@ -8,6 +8,6 @@ version = "0.1.0"
 [dependencies]
 async-recursion = "1.0.5"
 csm = { git = "https://github.com/Pitasi/csm", version = "0.1.0" }
-rscx = "0.1.9"
-rscx-mdx = { version = "0.1.5" }
+rscx = { version = "0.1.11" }
+rscx-mdx = { version = "0.1.6" }
 tokio = { version = "1.32.0", features = ["full"] }
