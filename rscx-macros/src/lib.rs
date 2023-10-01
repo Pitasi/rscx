@@ -1,7 +1,6 @@
 use std::collections::HashSet;
 
 use proc_macro::TokenStream;
-use proc_macro2::{Literal, TokenTree};
 use proc_macro2_diagnostics::Diagnostic;
 use quote::{quote, quote_spanned, ToTokens};
 use rstml::{

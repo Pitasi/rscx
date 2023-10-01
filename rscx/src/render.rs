@@ -1,4 +1,20 @@
-use std::{fmt, convert::Infallible, env::VarError, io::ErrorKind, net::{IpAddr, SocketAddr, Ipv4Addr, Ipv6Addr, SocketAddrV4, SocketAddrV6}, sync::{mpsc::{RecvTimeoutError, TryRecvError}, Arc}, num::{NonZeroI8, NonZeroI16, NonZeroI32, NonZeroI64, NonZeroI128, NonZeroIsize, NonZeroU8, NonZeroU16, NonZeroU32, NonZeroU64, NonZeroU128, NonZeroUsize}, borrow::Cow, ops::Deref, rc::Rc};
+use std::{
+    borrow::Cow,
+    convert::Infallible,
+    env::VarError,
+    fmt,
+    io::ErrorKind,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
+    num::{
+        NonZeroI128, NonZeroI16, NonZeroI32, NonZeroI64, NonZeroI8, NonZeroIsize, NonZeroU128,
+        NonZeroU16, NonZeroU32, NonZeroU64, NonZeroU8, NonZeroUsize,
+    },
+    rc::Rc,
+    sync::{
+        mpsc::{RecvTimeoutError, TryRecvError},
+        Arc,
+    },
+};
 
 pub trait Render {
     fn render(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result;
@@ -62,7 +78,7 @@ impl_render_for_basic_types! {
 impl<B: ?Sized> Render for Cow<'_, B>
 where
     B: Render + ToOwned,
-    <B as ToOwned>::Owned: Render
+    <B as ToOwned>::Owned: Render,
 {
     fn render(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
@@ -72,26 +88,12 @@ where
     }
 }
 
-// impl<T: Render> Render for Box<T> {
-//     #[inline(always)]
-//     fn render(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         self.as_ref().render(f)
-//     }
-// }
-
-// impl<T: Render> Render for Vec<T> {
-//     #[inline(always)]
-//     fn render(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         self.iter().map(|x| x.render(f)).collect::<fmt::Result>()
-//     }
-// }
-
-// impl<T: Render> Render for [T] {
-//     #[inline(always)]
-//     fn render(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         self.iter().map(|x| x.render(f)).collect::<fmt::Result>()
-//     }
-// }
+impl<T: Render> Render for Box<T> {
+    #[inline(always)]
+    fn render(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        Render::render(&**self, f)
+    }
+}
 
 impl<T: Render + ?Sized> Render for &T {
     #[inline(always)]
@@ -100,26 +102,26 @@ impl<T: Render + ?Sized> Render for &T {
     }
 }
 
-// impl<T: Render> Render for &mut T {
-//     #[inline(always)]
-//     fn render(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         (**self).render(f)
-//     }
-// }
+impl<T: Render> Render for &mut T {
+    #[inline(always)]
+    fn render(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        Render::render(&**self, f)
+    }
+}
 
-// impl<T: Render> Render for Rc<T> {
-//     #[inline(always)]
-//     fn render(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         self.deref().render(f)
-//     }
-// }
+impl<T: Render> Render for Rc<T> {
+    #[inline(always)]
+    fn render(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        Render::render(&**self, f)
+    }
+}
 
-// impl<T: Render> Render for Arc<T> {
-//     #[inline(always)]
-//     fn render(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         self.deref().render(f)
-//     }
-// }
+impl<T: Render> Render for Arc<T> {
+    #[inline(always)]
+    fn render(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        Render::render(&**self, f)
+    }
+}
 
 impl<T: Render> Render for Option<T> {
     #[inline(always)]

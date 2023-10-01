@@ -1,4 +1,4 @@
-use std::fmt::{Display, self};
+use std::fmt::{self, Display};
 
 use crate::render::Render;
 

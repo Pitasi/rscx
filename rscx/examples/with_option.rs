@@ -25,4 +25,3 @@ async fn app() -> String {
         </html>
     }
 }
-
