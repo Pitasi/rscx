@@ -212,11 +212,7 @@ fn walk_nodes<'a>(nodes: &'a Vec<Node>) -> WalkNodesOutput<'a> {
                 out.static_format.push_str(&text.value_string());
             }
             Node::RawText(text) => {
-                out.static_format.push_str("{}");
-                let tokens = text.to_string_best();
-                let literal = Literal::string(&tokens);
-
-                out.values.push(TokenTree::from(literal).into());
+                out.static_format.push_str(&text.to_string_best());
             }
             Node::Fragment(fragment) => {
                 let other_output = walk_nodes(&fragment.children);
