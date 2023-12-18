@@ -1,4 +1,4 @@
-use rscx::{component, html, props, CollectFragment};
+use rscx::{component, html, props, MapFragmentExt};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -59,8 +59,7 @@ async fn Items() -> String {
             {
                 data
                     .into_iter()
-                    .map(|item| html! { <li>{ item }</li> })
-                    .collect_fragment() // helper method to collect a list of components into a String
+                    .map_fragment(|item| html! { <li>{ item }</li> })
             }
         </ul>
     }
