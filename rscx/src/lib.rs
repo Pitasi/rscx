@@ -60,3 +60,25 @@ where
         join_all(self.collect::<Vec<_>>()).await.join("")
     }
 }
+
+pub trait MapFragmentExt: Iterator {
+    fn map_fragment<F, B>(self, f: F) -> String
+    where
+        Self: Sized,
+        F: FnMut(Self::Item) -> B,
+        B: ToString;
+}
+
+impl<T> MapFragmentExt for T
+where
+    T: Iterator,
+{
+    fn map_fragment<F, B>(self, f: F) -> String
+    where
+        Self: Sized,
+        F: FnMut(Self::Item) -> B,
+        B: ToString,
+    {
+        self.map(f).map(|b| b.to_string()).collect::<Vec<_>>().join("")
+    }
+}
