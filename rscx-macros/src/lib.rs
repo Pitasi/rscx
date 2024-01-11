@@ -41,6 +41,7 @@ fn empty_elements_set() -> HashSet<&'static str> {
 fn html_inner(tokens: TokenStream, ide_helper: bool) -> TokenStream {
     let config = ParserConfig::new()
         .recover_block(true)
+        .element_close_use_default_wildcard_ident(true)
         .always_self_closed_elements(empty_elements_set());
 
     let parser = Parser::new(config);
