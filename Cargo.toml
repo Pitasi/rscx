@@ -10,8 +10,8 @@ exclude = [
 ]
 
 [workspace.package]
-version = "0.1.11"
+version = "0.1.12"
 
 [workspace.dependencies]
-rscx = { path = "./rscx", version = "0.1.11" }
-rscx-macros = { path = "./rscx-macros", version = "0.1.11" }
+rscx = { path = "./rscx", version = "0.1.12" }
+rscx-macros = { path = "./rscx-macros", version = "0.1.12" }
