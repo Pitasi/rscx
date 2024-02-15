@@ -8,7 +8,7 @@ use rstml::{
     Parser, ParserConfig,
 };
 use syn::punctuated::Punctuated;
-use syn::{parse::Parse, parse_quote, spanned::Spanned, Expr, ExprLit, FnArg, ItemStruct, Token, Type, Lifetime};
+use syn::{parse::Parse, parse_quote, spanned::Spanned, Expr, ExprLit, FnArg, ItemStruct, Token};
 
 #[proc_macro]
 pub fn html(tokens: TokenStream) -> TokenStream {
@@ -378,8 +378,8 @@ impl ToTokens for PropsStruct {
             #[builder(doc, crate_module_path=::rscx::typed_builder)]
             #item
 
-            impl<'a> ::rscx::props::Props for #name<'a> {
-                type Builder = #builder_name<'a>;
+            impl ::rscx::props::Props for #name {
+                type Builder = #builder_name;
                 fn builder() -> Self::Builder {
                     #name::builder()
                 }
@@ -456,12 +456,6 @@ impl ToTokens for ComponentFn {
                             panic!("receiver arguments unsupported");
                         }
                         FnArg::Typed(mut t) => {
-                            if let Type::Reference(ty_ref) = t.ty.as_mut() {
-                                if ty_ref.lifetime.is_none() {
-                                    ty_ref.lifetime = Some(Lifetime::new("'a", ty_ref.span()));
-                                }
-                            }
-
                             if t.attrs.is_empty() {
                                 t.attrs.push(parse_quote! { #[builder(setter(into))] });
                             }
@@ -487,13 +481,11 @@ impl ToTokens for ComponentFn {
                 (
                     quote! {
                         #[rscx::props]
-                        pub struct #props_name<'a> {
-                            #field_defs,
-                            #[builder(default)]
-                            phantom: std::marker::PhantomData<&'a ()>
+                        pub struct #props_name {
+                            #field_defs
                         }
                     },
-                    quote! { #props_name { #field_names, .. }: #props_name<'a> },
+                    quote! { #props_name { #field_names }: #props_name },
                 )
             }
         };
@@ -505,7 +497,7 @@ impl ToTokens for ComponentFn {
         tokens.extend(quote! {
             #defs
             #[allow(non_snake_case)]
-            #vis async fn #name<'a>(#args) #output {
+            #vis async fn #name(#args) #output {
                 #body
             }
         });
