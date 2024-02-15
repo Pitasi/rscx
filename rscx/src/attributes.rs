@@ -24,6 +24,12 @@ impl EscapeAttribute for String {
     }
 }
 
+impl EscapeAttribute for &String {
+    fn escape_attribute(&self) -> Cow<str> {
+        encode_unquoted_attribute(self)
+    }
+}
+
 macro_rules! impl_escape_attribute_literal {
     ($($t:ty),*) => {
         $(
